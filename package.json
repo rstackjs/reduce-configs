@@ -1,7 +1,7 @@
 {
   "name": "reduce-configs",
   "version": "1.1.1",
-  "repository": "https://github.com/rspack-contrib/reduce-configs",
+  "repository": "https://github.com/rstackjs/reduce-configs",
   "license": "MIT",
   "type": "module",
   "exports": {
