@@ -1,6 +1,6 @@
 {
   "name": "reduce-configs",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "repository": "https://github.com/rstackjs/reduce-configs",
   "license": "MIT",
   "type": "module",
