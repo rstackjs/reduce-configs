@@ -139,11 +139,16 @@ export async function reduceConfigsAsyncWithContext<T, Ctx>({
     return (await config(initial, ctx)) ?? initial;
   }
   if (Array.isArray(config)) {
-    return config.reduce(
-      (initial, config) =>
-        reduceConfigsWithContext({ initial, config, ctx, mergeFn }),
-      initial,
-    );
+    let result = initial;
+    for (const item of config) {
+      result = await reduceConfigsAsyncWithContext({
+        initial: result,
+        config: item,
+        ctx,
+        mergeFn,
+      });
+    }
+    return result;
   }
   return config ?? initial;
 }

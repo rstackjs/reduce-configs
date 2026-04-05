@@ -1,6 +1,7 @@
 import { assert, test } from '@rstest/core';
 import {
   reduceConfigs,
+  reduceConfigsAsyncWithContext,
   reduceConfigsMergeContext,
   reduceConfigsWithContext,
 } from '../dist/index.js';
@@ -123,6 +124,68 @@ test('reduceConfigs should support function and merge context', () => {
       d: 'd',
       e: 'e',
     },
+  );
+});
+
+test('reduceConfigsAsyncWithContext should support async functions in array', async () => {
+  const initial = { a: 'a' };
+
+  const config = [
+    { b: 'b' },
+    async (o, { add }) => {
+      o.c = await add(1, 2);
+    },
+    (o) => ({
+      ...o,
+      d: 'd',
+    }),
+    { e: 'e' },
+  ];
+
+  assert.deepStrictEqual(
+    await reduceConfigsAsyncWithContext({
+      initial,
+      config,
+      ctx: {
+        add: async (a, b) => a + b,
+      },
+    }),
+    {
+      a: 'a',
+      b: 'b',
+      c: 3,
+      d: 'd',
+      e: 'e',
+    },
+  );
+});
+
+test('reduceConfigsAsyncWithContext should support multiple async functions in array', async () => {
+  const initial = { value: 1 };
+
+  const config = [
+    async (o) => ({ ...o, value: o.value + 10 }),
+    async (o) => ({ ...o, value: o.value * 2 }),
+  ];
+
+  assert.deepStrictEqual(
+    await reduceConfigsAsyncWithContext({
+      initial,
+      config,
+    }),
+    { value: 22 },
+  );
+});
+
+test('reduceConfigsAsyncWithContext should handle single async function', async () => {
+  const initial = { a: 1 };
+
+  assert.deepStrictEqual(
+    await reduceConfigsAsyncWithContext({
+      initial,
+      config: async (o) => ({ ...o, b: 2 }),
+    }),
+    { a: 1, b: 2 },
   );
 });
 
