@@ -21,8 +21,8 @@ importers:
         specifier: ^24.12.2
         version: 24.12.2
       nano-staged:
-        specifier: ^0.9.0
-        version: 0.9.0
+        specifier: ^1.0.2
+        version: 1.0.2
       simple-git-hooks:
         specifier: ^2.13.1
         version: 2.13.1
@@ -292,13 +292,10 @@ packages:
   core-js@3.47.0:
     resolution: {integrity: sha512-c3Q2VVkGAUyupsjRnaNX6u8Dq2vAdzm9iuPj5FW0fRxzlxgq9Q39MDq10IvmQSpLgHQNyQzQmOo6bgGHmH3NNg==}
 
-  nano-staged@0.9.0:
-    resolution: {integrity: sha512-0JfyX4i0Vp5HhC9RDtJ1kp7psz8CFuS3Gya3Z6WZv//QCwA9dPzi1S803VdR0c0P6R7sSvweZ5mSJmYQ/N+loQ==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+  nano-staged@1.0.2:
+    resolution: {integrity: sha512-Fytar3zHLY99nlMfqPPbraxZodqQAHPpdPRyYaplL+lB9DCR6pUrafxbG+Btz4+7fO5Rm/+DO4ZeDO/nLSUMhw==}
+    engines: {node: ^22 || >= 24}
     hasBin: true
-
-  picocolors@1.0.0:
-    resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
 
   rsbuild-plugin-dts@0.21.0:
     resolution: {integrity: sha512-bnn0pTVEAUfW3vcXYuo6US9QAO2SqQT7wjBBUer4ZtQAbberPF8soBQZWicPVC1t8mZZeVzg/PR0DHqKE7Hthw==}
@@ -554,11 +551,7 @@ snapshots:
   core-js@3.47.0:
     optional: true
 
-  nano-staged@0.9.0:
-    dependencies:
-      picocolors: 1.0.0
-
-  picocolors@1.0.0: {}
+  nano-staged@1.0.2: {}
 
   rsbuild-plugin-dts@0.21.0(@rsbuild/core@2.0.0-rc.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(core-js@3.47.0))(typescript@6.0.2):
     dependencies:
