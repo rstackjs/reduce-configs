@@ -46,7 +46,7 @@ function reduceConfigs<T>(options: {
 - **Example:**
 
 ```ts
-import { reduceConfigs } from "@rsbuild/core";
+import { reduceConfigs } from '@rsbuild/core';
 
 const initial = { a: 1, b: 2 };
 
@@ -113,16 +113,16 @@ function reduceConfigsWithContext<T, Ctx>(options: {
 - **Example:**
 
 ```ts
-import { reduceConfigsWithContext } from "@rsbuild/core";
+import { reduceConfigsWithContext } from '@rsbuild/core';
 
 const initial = { a: 1, b: 2 };
-const context = { user: "admin" };
+const context = { user: 'admin' };
 
 const finalConfig = reduceConfigsWithContext({
   initial,
   config: [
     { b: 3 },
-    (config, ctx) => ({ ...config, c: ctx.user === "admin" ? 99 : 4 }),
+    (config, ctx) => ({ ...config, c: ctx.user === 'admin' ? 99 : 4 }),
   ],
   ctx: context,
 });
