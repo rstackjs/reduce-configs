@@ -1,20 +1,34 @@
 import { assert, test } from '@rstest/core';
 import {
   reduceConfigs,
-  reduceConfigsAsyncWithContext,
-  reduceConfigsMergeContext,
   reduceConfigsWithContext,
+  reduceConfigsWithMergedContext,
 } from '../dist/index.js';
 
-test('reduceConfigs should return initial config', () => {
-  assert.deepStrictEqual(reduceConfigs({ initial: { value: 'a' } }), {
+test('all reducers should return promises', () => {
+  assert.strictEqual(
+    typeof reduceConfigs({ initial: { value: 'a' } }).then,
+    'function',
+  );
+  assert.strictEqual(
+    typeof reduceConfigsWithContext({ initial: { value: 'a' } }).then,
+    'function',
+  );
+  assert.strictEqual(
+    typeof reduceConfigsWithMergedContext({ initial: { value: 'a' } }).then,
+    'function',
+  );
+});
+
+test('reduceConfigs should return initial config', async () => {
+  assert.deepStrictEqual(await reduceConfigs({ initial: { value: 'a' } }), {
     value: 'a',
   });
 });
 
-test('reduceConfigs should merge initial config', () => {
+test('reduceConfigs should merge initial config', async () => {
   assert.deepStrictEqual(
-    reduceConfigs({
+    await reduceConfigs({
       initial: { name: 'a' },
       config: {
         name: 'b',
@@ -28,7 +42,7 @@ test('reduceConfigs should merge initial config', () => {
   );
 });
 
-test('reduceConfigs should support custom merge function', () => {
+test('reduceConfigs should support custom merge function', async () => {
   const merge = (target, source) => {
     for (const key in source) {
       if (Object.hasOwn(target, key)) {
@@ -41,7 +55,7 @@ test('reduceConfigs should support custom merge function', () => {
   };
 
   assert.deepStrictEqual(
-    reduceConfigs({
+    await reduceConfigs({
       initial: {
         a: 1,
         b: 'b',
@@ -61,15 +75,15 @@ test('reduceConfigs should support custom merge function', () => {
   );
 });
 
-test('reduceConfigs should support function or object array', () => {
+test('reduceConfigs should support function or object array', async () => {
   const initial = { a: 'a' };
 
   const config = [
     { b: 'b' },
-    (o, { add }) => {
-      o.c = add(1, 2);
+    (o) => {
+      o.c = 3;
     },
-    (o) => ({
+    async (o) => ({
       ...o,
       d: 'd',
     }),
@@ -77,12 +91,9 @@ test('reduceConfigs should support function or object array', () => {
   ];
 
   assert.deepStrictEqual(
-    reduceConfigsWithContext({
+    await reduceConfigs({
       initial,
       config,
-      ctx: {
-        add: (a, b) => a + b,
-      },
     }),
     {
       a: 'a',
@@ -94,40 +105,7 @@ test('reduceConfigs should support function or object array', () => {
   );
 });
 
-test('reduceConfigs should support function and merge context', () => {
-  const initial = { a: 'a' };
-
-  const config = [
-    { b: 'b' },
-    ({ value, add }) => {
-      value.c = add(1, 2);
-    },
-    ({ value }) => ({
-      ...value,
-      d: 'd',
-    }),
-    { e: 'e' },
-  ];
-
-  assert.deepStrictEqual(
-    reduceConfigsMergeContext({
-      initial,
-      config,
-      ctx: {
-        add: (a, b) => a + b,
-      },
-    }),
-    {
-      a: 'a',
-      b: 'b',
-      c: 3,
-      d: 'd',
-      e: 'e',
-    },
-  );
-});
-
-test('reduceConfigsAsyncWithContext should support async functions in array', async () => {
+test('reduceConfigsWithContext should support functions with context', async () => {
   const initial = { a: 'a' };
 
   const config = [
@@ -143,7 +121,7 @@ test('reduceConfigsAsyncWithContext should support async functions in array', as
   ];
 
   assert.deepStrictEqual(
-    await reduceConfigsAsyncWithContext({
+    await reduceConfigsWithContext({
       initial,
       config,
       ctx: {
@@ -160,7 +138,7 @@ test('reduceConfigsAsyncWithContext should support async functions in array', as
   );
 });
 
-test('reduceConfigsAsyncWithContext should support multiple async functions in array', async () => {
+test('reduceConfigsWithContext should support multiple async functions in array', async () => {
   const initial = { value: 1 };
 
   const config = [
@@ -169,7 +147,7 @@ test('reduceConfigsAsyncWithContext should support multiple async functions in a
   ];
 
   assert.deepStrictEqual(
-    await reduceConfigsAsyncWithContext({
+    await reduceConfigsWithContext({
       initial,
       config,
     }),
@@ -177,21 +155,54 @@ test('reduceConfigsAsyncWithContext should support multiple async functions in a
   );
 });
 
-test('reduceConfigsAsyncWithContext should handle single async function', async () => {
+test('reduceConfigsWithMergedContext should support function and merged context', async () => {
+  const initial = { a: 'a' };
+
+  const config = [
+    { b: 'b' },
+    async ({ value, add }) => {
+      value.c = await add(1, 2);
+    },
+    ({ value }) => ({
+      ...value,
+      d: 'd',
+    }),
+    { e: 'e' },
+  ];
+
+  assert.deepStrictEqual(
+    await reduceConfigsWithMergedContext({
+      initial,
+      config,
+      ctx: {
+        add: async (a, b) => a + b,
+      },
+    }),
+    {
+      a: 'a',
+      b: 'b',
+      c: 3,
+      d: 'd',
+      e: 'e',
+    },
+  );
+});
+
+test('reduceConfigsWithMergedContext should handle single async function', async () => {
   const initial = { a: 1 };
 
   assert.deepStrictEqual(
-    await reduceConfigsAsyncWithContext({
+    await reduceConfigsWithMergedContext({
       initial,
-      config: async (o) => ({ ...o, b: 2 }),
+      config: async ({ value }) => ({ ...value, b: 2 }),
     }),
     { a: 1, b: 2 },
   );
 });
 
-test('reduceConfigs should allow false as config', () => {
+test('reduceConfigs should allow false as config', async () => {
   assert.strictEqual(
-    reduceConfigs({
+    await reduceConfigs({
       initial: 'head',
       config: false,
     }),
@@ -199,7 +210,7 @@ test('reduceConfigs should allow false as config', () => {
   );
 
   assert.strictEqual(
-    reduceConfigs({
+    await reduceConfigs({
       initial: 'head',
       config: () => false,
     }),
@@ -207,9 +218,9 @@ test('reduceConfigs should allow false as config', () => {
   );
 
   assert.strictEqual(
-    reduceConfigs({
+    await reduceConfigs({
       initial: 'head',
-      config: ['head', 'head', () => false],
+      config: ['head', 'head', async () => false],
     }),
     false,
   );

@@ -1,15 +1,16 @@
 type OneOrMany<T> = T | T[];
 type MaybePromise<T> = T | Promise<T>;
 
-export type ConfigChain<T> = OneOrMany<T | ((config: T) => T | void)>;
-export type ConfigChainWithContext<T, Ctx> = OneOrMany<
-  T | ((config: T, ctx: Ctx) => T | void)
+export type ConfigChain<T> = OneOrMany<
+  T | ((config: T) => MaybePromise<T | void>)
 >;
-export type ConfigChainAsyncWithContext<T, Ctx> = OneOrMany<
+
+export type ConfigChainWithContext<T, Ctx> = OneOrMany<
   T | ((config: T, ctx: Ctx) => MaybePromise<T | void>)
 >;
-export type ConfigChainMergeContext<T, Ctx> = OneOrMany<
-  T | ((merged: { value: T } & Ctx) => T | void)
+
+export type ConfigChainWithMergedContext<T, Ctx> = OneOrMany<
+  T | ((merged: { value: T } & Ctx) => MaybePromise<T | void>)
 >;
 
 const isNil = (o: unknown): o is undefined | null =>
@@ -26,9 +27,9 @@ const isPlainObject = (obj: unknown): obj is Record<string, any> =>
 
 /**
  * Merge one or more configs into a final config,
- * and allow to modify the config object via a function.
+ * and allow modifying the config object via a function that may be async.
  */
-export function reduceConfigs<T>({
+export async function reduceConfigs<T>({
   initial,
   config,
   mergeFn = Object.assign,
@@ -39,7 +40,7 @@ export function reduceConfigs<T>({
   initial: T;
   /**
    * The configuration object, function, or array of configuration objects/functions
-   * to be merged into the initial configuration
+   * to be merged into the initial configuration.
    */
   config?: ConfigChain<T> | undefined;
   /**
@@ -47,7 +48,7 @@ export function reduceConfigs<T>({
    * @default Object.assign
    */
   mergeFn?: typeof Object.assign;
-}): T {
+}): Promise<T> {
   if (isNil(config)) {
     return initial;
   }
@@ -55,22 +56,23 @@ export function reduceConfigs<T>({
     return isPlainObject(initial) ? mergeFn(initial, config) : (config as T);
   }
   if (isFunction(config)) {
-    return config(initial) ?? initial;
+    return (await config(initial)) ?? initial;
   }
   if (Array.isArray(config)) {
-    return config.reduce(
-      (initial, config) => reduceConfigs({ initial, config, mergeFn }),
-      initial,
-    );
+    let result = initial;
+    for (const item of config) {
+      result = await reduceConfigs({ initial: result, config: item, mergeFn });
+    }
+    return result;
   }
   return config ?? initial;
 }
 
 /**
  * Merge one or more configs into a final config,
- * and allow to modify the config object via a function, the function accepts a context object.
+ * and allow modifying the config object via a function that may be async and accepts a context object.
  */
-export function reduceConfigsWithContext<T, Ctx>({
+export async function reduceConfigsWithContext<T, Ctx>({
   initial,
   config,
   ctx,
@@ -82,7 +84,7 @@ export function reduceConfigsWithContext<T, Ctx>({
   initial: T;
   /**
    * The configuration object, function, or array of configuration objects/functions
-   * to be merged into the initial configuration
+   * to be merged into the initial configuration.
    */
   config?: ConfigChainWithContext<T, Ctx> | undefined;
   /**
@@ -93,40 +95,6 @@ export function reduceConfigsWithContext<T, Ctx>({
    * The function used to merge configuration objects.
    * @default Object.assign
    */
-  mergeFn?: typeof Object.assign;
-}): T {
-  if (isNil(config)) {
-    return initial;
-  }
-  if (isPlainObject(config)) {
-    return isPlainObject(initial) ? mergeFn(initial, config) : (config as T);
-  }
-  if (isFunction(config)) {
-    return config(initial, ctx) ?? initial;
-  }
-  if (Array.isArray(config)) {
-    return config.reduce(
-      (initial, config) =>
-        reduceConfigsWithContext({ initial, config, ctx, mergeFn }),
-      initial,
-    );
-  }
-  return config ?? initial;
-}
-
-/**
- * Merge one or more configs into a final config,
- * and allow to modify the config object via an async function, the function accepts a context object.
- */
-export async function reduceConfigsAsyncWithContext<T, Ctx>({
-  initial,
-  config,
-  ctx,
-  mergeFn = Object.assign,
-}: {
-  initial: T;
-  config?: ConfigChainAsyncWithContext<T, Ctx> | undefined;
-  ctx?: Ctx;
   mergeFn?: typeof Object.assign;
 }): Promise<T> {
   if (isNil(config)) {
@@ -141,7 +109,7 @@ export async function reduceConfigsAsyncWithContext<T, Ctx>({
   if (Array.isArray(config)) {
     let result = initial;
     for (const item of config) {
-      result = await reduceConfigsAsyncWithContext({
+      result = await reduceConfigsWithContext({
         initial: result,
         config: item,
         ctx,
@@ -155,19 +123,33 @@ export async function reduceConfigsAsyncWithContext<T, Ctx>({
 
 /**
  * Merge one or more configs into a final config,
- * and allow to modify the config object via an async function, the function accepts a merged object.
+ * and allow modifying the config object via a function that may be async and accepts a merged context object.
  */
-export function reduceConfigsMergeContext<T, Ctx>({
+export async function reduceConfigsWithMergedContext<T, Ctx>({
   initial,
   config,
   ctx,
   mergeFn = Object.assign,
 }: {
+  /**
+   * Initial configuration object.
+   */
   initial: T;
-  config?: ConfigChainMergeContext<T, Ctx> | undefined;
+  /**
+   * The configuration object, function, or array of configuration objects/functions
+   * to be merged into the initial configuration.
+   */
+  config?: ConfigChainWithMergedContext<T, Ctx> | undefined;
+  /**
+   * Context object that will be merged with the current value and passed to configuration functions.
+   */
   ctx?: Ctx;
+  /**
+   * The function used to merge configuration objects.
+   * @default Object.assign
+   */
   mergeFn?: typeof Object.assign;
-}): T {
+}): Promise<T> {
   if (isNil(config)) {
     return initial;
   }
@@ -175,19 +157,19 @@ export function reduceConfigsMergeContext<T, Ctx>({
     return isPlainObject(initial) ? mergeFn(initial, config) : (config as T);
   }
   if (isFunction(config)) {
-    return config({ value: initial, ...ctx }) ?? initial;
+    return (await config({ value: initial, ...ctx })) ?? initial;
   }
   if (Array.isArray(config)) {
-    return config.reduce(
-      (initial, config) =>
-        reduceConfigsMergeContext({
-          initial,
-          config,
-          ctx,
-          mergeFn,
-        }),
-      initial,
-    );
+    let result = initial;
+    for (const item of config) {
+      result = await reduceConfigsWithMergedContext({
+        initial: result,
+        config: item,
+        ctx,
+        mergeFn,
+      });
+    }
+    return result;
   }
   return config ?? initial;
 }
