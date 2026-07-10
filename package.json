@@ -15,19 +15,17 @@
     "dist"
   ],
   "scripts": {
-    "build": "rslib",
-    "dev": "rslib -w",
-    "lint": "rslint && prettier -c .",
-    "lint:write": "rslint --fix && prettier -w .",
-    "test": "rstest",
+    "build": "rs lib",
+    "dev": "rs lib -w",
+    "lint": "rs lint && prettier -c .",
+    "lint:write": "rs lint --fix && prettier -w .",
+    "test": "rs test",
     "bump": "npx bumpp"
   },
   "devDependencies": {
-    "@rslib/core": "^0.23.1",
-    "@rslint/core": "^0.6.4",
-    "@rstest/core": "0.10.6",
     "@types/node": "^24.13.2",
     "prettier": "^3.9.4",
+    "rstack": "^0.0.2",
     "typescript": "7.0.2"
   },
   "packageManager": "pnpm@11.9.0",
