@@ -23,12 +23,12 @@
     "bump": "npx bumpp"
   },
   "devDependencies": {
-    "@types/node": "^24.13.2",
-    "prettier": "^3.9.4",
-    "rstack": "^0.0.2",
+    "@types/node": "^24.13.3",
+    "prettier": "^3.9.5",
+    "rstack": "^0.0.3",
     "typescript": "7.0.2"
   },
-  "packageManager": "pnpm@11.9.0",
+  "packageManager": "pnpm@11.13.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
