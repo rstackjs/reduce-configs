@@ -20,12 +20,13 @@
     "lint": "rs lint && prettier -c .",
     "lint:write": "rs lint --fix && prettier -w .",
     "test": "rs test",
+    "prepare": "rs setup",
     "bump": "npx bumpp"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
     "prettier": "^3.9.5",
-    "rstack": "^0.0.3",
+    "rstack": "^0.2.0",
     "typescript": "7.0.2"
   },
   "packageManager": "pnpm@11.13.0",
