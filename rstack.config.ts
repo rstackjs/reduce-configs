@@ -1,4 +1,4 @@
-// Rstack CLI best practices: .agents/skills/rstack-cli-best-practices/SKILL.md
+// Rstack configuration guide: https://rstack.rs/config
 
 import { define } from 'rstack';
 
