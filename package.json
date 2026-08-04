@@ -17,16 +17,15 @@
   "scripts": {
     "build": "rs lib",
     "dev": "rs lib -w",
-    "lint": "rs lint && prettier -c .",
-    "lint:write": "rs lint --fix && prettier -w .",
+    "lint": "rs lint && rs fmt --check",
+    "lint:write": "rs lint --fix && rs fmt",
     "test": "rs test",
     "prepare": "rs setup",
     "bump": "npx bumpp"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
-    "prettier": "^3.9.5",
-    "rstack": "^0.2.0",
+    "rstack": "^0.3.2",
     "typescript": "7.0.2"
   },
   "packageManager": "pnpm@11.13.0",
