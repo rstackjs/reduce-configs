@@ -1,3 +1,5 @@
+// Rstack CLI best practices: .agents/skills/rstack-cli-best-practices/SKILL.md
+
 import { define } from 'rstack';
 
 define.lib({
