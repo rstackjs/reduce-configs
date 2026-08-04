@@ -21,7 +21,6 @@ define.lint(async () => {
 
 define.fmt({
   singleQuote: true,
-  ignorePatterns: ['pnpm-lock.yaml'],
 });
 
 define.staged({
