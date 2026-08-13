@@ -18,8 +18,8 @@
     "build": "rs lib",
     "check": "rs check --type-check",
     "dev": "rs lib -w",
-    "lint": "node --run check",
-    "lint:write": "rs lint --fix && rs fmt",
+    "format": "rs fmt",
+    "lint": "rs lint",
     "test": "rs test",
     "prepare": "rs setup",
     "bump": "npx bumpp"
