@@ -1,4 +1,14 @@
 {
   "search.useIgnoreFiles": true,
-  "cSpell.words": ["rslint", "rstack"]
+  "cSpell.words": ["rslint", "rstack"],
+  "editor.defaultFormatter": "rstack.rstack",
+  "[typescript]": {
+    "editor.defaultFormatter": "rstack.rstack"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "rstack.rstack"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "rstack.rstack"
+  }
 }
