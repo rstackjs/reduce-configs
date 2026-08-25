@@ -21,12 +21,12 @@
     "format": "rs fmt",
     "lint": "rs lint",
     "test": "rs test",
-    "prepare": "rs setup",
+    "prepare": "rs hooks",
     "bump": "npx bumpp"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
-    "rstack": "^0.6.0",
+    "rstack": "^0.6.4",
     "typescript": "7.0.2"
   },
   "packageManager": "pnpm@11.13.0",
