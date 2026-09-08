@@ -22,7 +22,7 @@
     "lint": "rs lint",
     "test": "rs test",
     "prepare": "rs hooks",
-    "bump": "npx bumpp"
+    "bump": "pnpm version -m \"release: v%s\""
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
